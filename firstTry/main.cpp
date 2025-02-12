@@ -35,7 +35,7 @@ int main(void) {
 	if (vec.output() != 0) {
 		return 6;
 	}
-
+	std::cin >> i;
 
 	return 0;
 }
