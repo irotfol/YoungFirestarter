@@ -388,6 +388,7 @@ float Vec_Spichka::get_min_time() {
 
 float Vec_Spichka::step() {
 	float min = this->get_min_time();
+
 	if (min == 0.0f) {
 		return 0.0f;
 	}
@@ -397,15 +398,17 @@ float Vec_Spichka::step() {
 	Spichka_on_fire* temp_spichka = nullptr;
 	std::list<Spichka_on_fire*>::iterator it = this->list_of_fire.begin();
 	std::list<Spichka*>::iterator it2 = this->vec_on_fire.begin();
+	//Subtracting the burning time from the matches
 	for (it = this->list_of_fire.begin(); it != this->list_of_fire.end(); ++it) {
 		(*it)->operator-(min);
 	}
-
+	//Iterating through all matches that are supposed to ignite other matches
 	for (it = this->list_of_fire.begin(); it != this->list_of_fire.end(); ++it) {
 		if ((*it)->get_strenght() != 0.0f) {
 			continue;
 		}
 		else {
+			//If a match has burned to the center and has an intersecting match, continue burning and spread the fire further
 			if ((*it)->is_fire_centre()) {
 				(*it)->fire();
 				is_new_spichka = true;
@@ -415,6 +418,7 @@ float Vec_Spichka::step() {
 						break;
 					}
 				}
+				//If the ignited match is new, add it to the list of burning matches
 				if (is_new_spichka) {
 					this->vec_on_fire.push_back((*it)->get_diag_spichka());
 					temp_spichka = new Spichka_on_fire((*it)->get_diag_spichka());
@@ -422,6 +426,7 @@ float Vec_Spichka::step() {
 					this->list_of_fire.push_back(temp_spichka);
 				}
 				else {
+					//If the match is already in the list, distribute the match's strength across the burning segments
 					for (std::list<Spichka_on_fire*>::iterator it3 = this->list_of_fire.begin(); it3 != this->list_of_fire.end(); ++it3) {
 						if ((*it3)->get_cur_spichka() == (*it)->get_diag_spichka()) {
 							(*it3)->fire();
@@ -431,6 +436,7 @@ float Vec_Spichka::step() {
 				}
 			}
 			else {
+				//Get the points that should be ignited next
 				(*it)->get_fire_points(this->points_buf);
 				for (j = 0; j < 2; ++j) {
 					if (this->points_buf[j] != nullptr) {
@@ -443,6 +449,7 @@ float Vec_Spichka::step() {
 										break;
 									}
 								}
+								//Igniting the next point on an existing match or a new one, and distribute the match's strength across the burning segments
 								if (is_new_spichka) {
 									this->vec_on_fire.push_back(this->vec[i]);
 									temp_spichka = new Spichka_on_fire(this->vec[i]);
@@ -462,6 +469,7 @@ float Vec_Spichka::step() {
 			
 		}
 	}
+	//Removing burned-out matches
 	it = this->list_of_fire.begin();
 	while (it != this->list_of_fire.end()) {
 		if ((*it)->get_strenght() == 0.0f) {
@@ -509,9 +517,11 @@ int Vec_Spichka::ignite() {
 	float node_time = 0.0f;
 	Spichka_on_fire* temp_spichka = nullptr;
 	std::list<Spichka_on_fire*>::iterator it2 = this->list_of_fire.begin();
+	//Simulation for all points
 	for (std::list<xy>::iterator it = this->points.begin(); it != this->points.end(); ++it) {
 		this->current_time = 0.0;
 		this->vec_on_fire.clear();
+		//Clearing lists from the previous simulation
 		it2 = this->list_of_fire.begin();
 		while (it2 != this->list_of_fire.end()) {
 			temp_spichka = *it2;
@@ -520,7 +530,7 @@ int Vec_Spichka::ignite() {
 			it2++;
 		}
 		this->list_of_fire.clear();
-
+		//Adding the first matches for burning
 		for (i = 0; i < this->vec.size(); ++i) {
 			if (*this->vec[i] == *it) {
 				this->vec_on_fire.push_back(this->vec[i]);
@@ -529,14 +539,18 @@ int Vec_Spichka::ignite() {
 				this->list_of_fire.push_back(temp_spichka);
 			}
 		}
+		//Calculating the minimum burning time until the next ignition point and subtracting the burning time from the matches
 		do { 
 			node_time = this->step();
 			this->current_time += node_time;
 		} while (node_time != 0.0f);
+		/*If not all matches have been affected, the program terminates prematurely,
+		indicating that not all matches are connected into a complete figure*/
 		if (this->vec.size() != this->vec_on_fire.size()) {
 			std::cout << "Spichkas didn't linked together" << '\n';
 			return 1;
 		}
+		//Recording the best result
 		if ((current_time < this->best_time) || (this->best_time == 0.0f)) {
 			this->best_time = current_time;
 			this->best_point = &(*it);

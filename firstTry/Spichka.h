@@ -21,7 +21,7 @@ struct xy {
 			return false;
 		}
 	};
-	int output() {
+	int output() const {
 		std::cout << x << ' ' << y << '\n';
 		return 0;
 	};
