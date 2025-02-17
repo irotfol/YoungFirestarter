@@ -12,7 +12,7 @@ int main(void) {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	unsigned short int kolvo = 0;
 	char buffer[29] = {};
-	int i = 0;
+	char i = 0;
 
 	if (my_getline(buffer, 3) != 0) {
 		return 1;
@@ -35,7 +35,7 @@ int main(void) {
 	if (vec.output() != 0) {
 		return 6;
 	}
-	std::cin >> i;
+	i = getchar();
 
 	return 0;
 }
