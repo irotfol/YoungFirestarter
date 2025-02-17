@@ -327,6 +327,10 @@ Spichka* Spichka_on_fire::get_diag_spichka() {
 	return this->current_spichka->get_diag_spichka();
 }
 
+Spichka* Spichka_on_fire::get_cur_spichka() {
+	return this->current_spichka;
+}
+
 int Spichka_on_fire::get_fire_points(xy* points[2]) {
 	int result = 1;
 	points[0] = nullptr;
@@ -417,6 +421,14 @@ float Vec_Spichka::step() {
 					temp_spichka->fire();
 					this->list_of_fire.push_back(temp_spichka);
 				}
+				else {
+					for (std::list<Spichka_on_fire*>::iterator it3 = this->list_of_fire.begin(); it3 != this->list_of_fire.end(); ++it3) {
+						if ((*it3)->get_cur_spichka() == (*it)->get_diag_spichka()) {
+							(*it3)->fire();
+							break;
+						}
+					}
+				}
 			}
 			else {
 				(*it)->get_fire_points(this->points_buf);
@@ -458,8 +470,10 @@ float Vec_Spichka::step() {
 			delete temp_spichka;
 			temp_spichka = nullptr;
 		}
-		if (it != this->list_of_fire.end()) {
-			it++;
+		else {
+			if (it != this->list_of_fire.end()) {
+				it++;
+			}
 		}
 	}
 	return min;

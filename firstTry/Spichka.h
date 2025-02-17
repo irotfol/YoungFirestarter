@@ -59,6 +59,7 @@ public:
 	float get_strenght();
 	float get_min() const;
 	Spichka* get_diag_spichka();
+	Spichka* get_cur_spichka();
 	bool is_on_fire();
 	bool is_full_strenght();
 	bool is_fire_centre();
